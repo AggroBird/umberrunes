@@ -15,7 +15,7 @@ local has_absorbs = game_version >= 50200;
 local has_spec = game_version >= 50000;
 
 -- Main variables
-local current_spec = nil;
+local current_spec = 2;
 local frame_locked = 1;
 local current_time = GetTime();
 local new_time = GetTime();
@@ -645,8 +645,6 @@ local function update_runes()
 	-- Disable blizzard runes
 	RuneFrame:Hide();
 	
-	if is_wrath == false and current_spec == nil then return; end
-	
 	rune_index = 0;
 	for i = 1,6 do
 		if is_wrath then rune_index = rune_ids[i]; else rune_index = i; end
@@ -1026,7 +1024,15 @@ umber_main_frame:SetScript("OnUpdate", function(self, elapsed)
 		has_init = true;
 	end
 	
-	if has_spec then current_spec = GetSpecialization(); end
+	current_spec = 2;
+	if has_spec then
+		query_spec = GetSpecialization();
+		-- New DKs have no spec selected from creation, and GetSpecialization
+		-- will return '5' as of 9.3. Default to frost until they select a spec.
+		if query_spec ~= nil and query_spec > 0 and query_spec < 4 then
+			current_spec = query_spec;
+		end
+	end
 	
 	calculate_delta_time();
 	
