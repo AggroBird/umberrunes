@@ -1,7 +1,7 @@
 ## Interface: 90207
 ## Interface-Mainline: 90207
 ## Title: UmberRunes
-## Version: 1.11.0
+## Version: 1.11.1
 ## Notes: Simple yet sophisticated Death Knight Rune interface.
 ## Author: Umberwaugh, Kazzak-EU
 ## SavedVariablesPerCharacter: umb_x, umb_y, umb_data, umb_combat, umb_timers, umb_sort

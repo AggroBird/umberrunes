@@ -1,4 +1,4 @@
--- UMBERRUNES 1.11.0
+-- UMBERRUNES 1.11.1
 
 
 local function get_game_version()
@@ -401,9 +401,14 @@ local function setup_target()
 end
 local function update_target()
 	
-	target_health_text:SetText(""..format_big_number(UnitHealth("target")).." / "..format_big_number(UnitHealthMax("target")).."");
-	target_health_bar:SetMinMaxValues(0, UnitHealthMax("target"));
-	target_health_bar:SetValue(UnitHealth("target"));
+	target_health = UnitHealth("target");
+	target_max_health = UnitHealthMax("target");
+	target_power = UnitPower("target");
+	target_max_power = UnitPowerMax("target");
+	
+	target_health_text:SetText(""..format_big_number(target_health).." / "..format_big_number(target_max_health).."");
+	target_health_bar:SetMinMaxValues(0, target_max_health);
+	target_health_bar:SetValue(target_health);
 	
 	base_frame = frames[get_frame("target")];
 	
@@ -419,18 +424,19 @@ local function update_target()
 		target_level_text:SetPoint("CENTER", target_health_bar, "CENTER", -base_frame.width / 2 - 16, -base_frame.height / 4);
 	end
 	
-	if UnitPowerMax("target") > 0 then
-		target_energy_text:SetText(""..format_big_number(UnitPower("target")).." / "..format_big_number(UnitPowerMax("target")).."");
-		target_energy_bar:SetMinMaxValues(0, UnitPowerMax("target"));
-		target_energy_bar:SetValue(UnitPower("target"));
+	if target_max_power > 0 then
+		target_energy_text:SetText(""..format_big_number(target_power).." / "..format_big_number(target_max_power).."");
+		target_energy_bar:SetMinMaxValues(0, target_max_power);
+		target_energy_bar:SetValue(target_power);
 		
 		power_type, power_token = UnitPowerType("target");
+		power_color = PowerBarColor[power_type];
 		
 		r = 0.4; g = 0.4; b = 0.4;
-		if PowerBarColor[power_type] ~= nil then
-			r = PowerBarColor[power_type]["r"];
-			g = PowerBarColor[power_type]["g"];
-			b = PowerBarColor[power_type]["b"];
+		if power_color ~= nil then
+			r = power_color["r"];
+			g = power_color["g"];
+			b = power_color["b"];
 		end
 		
 		target_energy_background:SetColorTexture(r, g, b, 0.2);
@@ -445,22 +451,24 @@ local function update_target()
 	target_health_perc:SetText("");
 	target_energy_perc:SetText("");
 	
-	if UnitHealthMax("target") > 0 then
-		if UnitHealth("target") == 0 then
+	if target_max_health > 0 then
+		if target_health == 0 then
 			target_health_perc:SetText("Dead");
 		else
-			target_health_perc:SetText(format_percentage_number(UnitHealth("target"), UnitHealthMax("target")).."%");
+			target_health_perc:SetText(format_percentage_number(target_health, target_max_health).."%");
 		end
 	end
-	if UnitPowerMax("target") > 0 and UnitPowerMax("target") > 999 then
-		target_energy_perc:SetText(format_percentage_number(UnitPower("target"), UnitPowerMax("target")).."%");
+	if target_max_power > 999 then
+		target_energy_perc:SetText(format_percentage_number(target_power, target_max_power).."%");
 	end
 	
 	if has_absorbs == true then
-		target_absorb_bar:SetMinMaxValues(0, UnitHealthMax("target"));
-		target_absorb_bar:SetValue(UnitHealth("target") + UnitGetTotalAbsorbs("target"));
+		target_absorb = UnitGetTotalAbsorbs("target");
+		
+		target_absorb_bar:SetMinMaxValues(0, target_max_health);
+		target_absorb_bar:SetValue(target_health + target_absorb);
 	
-		if UnitHealth("target") + UnitGetTotalAbsorbs("target") > UnitHealthMax("target") then
+		if target_health + target_absorb > target_max_health then
 			target_overabsorb_texture:SetAlpha(1);
 		else
 			target_overabsorb_texture:SetAlpha(0);
@@ -834,17 +842,22 @@ local function setup_health()
 end
 local function update_health()
 	
-	health_bar:SetMinMaxValues(0, UnitHealthMax("player"));
-	health_bar:SetValue(UnitHealth("player"));
+	player_health = UnitHealth("player");
+	player_max_health = UnitHealthMax("player");
 	
-	health_text:SetText(""..format_big_number(UnitHealth("player")).." / "..format_big_number(UnitHealthMax("player")).."");
-	health_perc:SetText(format_percentage_number(UnitHealth("player"), UnitHealthMax("player")).."%");
+	health_bar:SetMinMaxValues(0, player_max_health);
+	health_bar:SetValue(player_health);
+	
+	health_text:SetText(""..format_big_number(player_health).." / "..format_big_number(player_max_health).."");
+	health_perc:SetText(format_percentage_number(player_health, player_max_health).."%");
 	
 	if has_absorbs == true then
-		health_absorb_bar:SetMinMaxValues(0, UnitHealthMax("player"));
-		health_absorb_bar:SetValue(UnitHealth("player") + UnitGetTotalAbsorbs("player"));
+		player_absorb = UnitGetTotalAbsorbs("player");
+	
+		health_absorb_bar:SetMinMaxValues(0, player_max_health);
+		health_absorb_bar:SetValue(player_health + player_absorb);
 		
-		if UnitHealth("player") + UnitGetTotalAbsorbs("player") > UnitHealthMax("player") then
+		if player_health + player_absorb > player_max_health then
 			health_overabsorb_texture:SetAlpha(1);
 		else
 			health_overabsorb_texture:SetAlpha(0);
@@ -893,17 +906,26 @@ local function setup_runic()
 	end
 end
 local function update_runic()
+	player_power = UnitPower("player");
+	player_max_power = UnitPowerMax("player");
 	
-	runic_bar:SetMinMaxValues(0, UnitPowerMax("player"));
-	runic_bar:SetValue(UnitPower("player"));
-	runic_text:SetText(""..format_big_number(UnitPower("player")).." / "..format_big_number(UnitPowerMax("player")).."");
+	runic_bar:SetMinMaxValues(0, player_max_power);
+	runic_bar:SetValue(player_power);
+	runic_text:SetText(""..format_big_number(player_power).." / "..format_big_number(player_max_power).."");
 	
 	power_type, power_token = UnitPowerType("player");
-	runic_background:SetColorTexture(PowerBarColor[power_type]["r"], PowerBarColor[power_type]["g"], PowerBarColor[power_type]["b"], 0.2);
-	runic_bar:SetStatusBarColor(PowerBarColor[power_type]["r"], PowerBarColor[power_type]["g"], PowerBarColor[power_type]["b"]);
+	power_color = PowerBarColor[power_type];
+	r = 0.4; g = 0.4; b = 0.4;
+	if power_color ~= nil then
+		r = power_color["r"];
+		g = power_color["g"];
+		b = power_color["b"];
+	end
+	runic_background:SetColorTexture(r, g, b, 0.2);
+	runic_bar:SetStatusBarColor(r, g, b);
 	
 	if power_type == 0 then
-		runic_perc:SetText(format_percentage_number(UnitPower("player"), UnitPowerMax("player")).."%");
+		runic_perc:SetText(format_percentage_number(player_power, player_max_power).."%");
 	else
 		runic_perc:SetText("");
 	end
@@ -1130,6 +1152,7 @@ umber_main_frame:SetScript("OnUpdate", function(self, elapsed)
 	umber_drag_frame:ClearAllPoints();
 	umber_drag_frame:SetPoint("CENTER", umb_x, umb_y);
 	
+	-- Update frames
 	for i = 1, table.getn(frames) do
 		if get_frame_enabled(frames[i].name) == true and get_frame_class_enabled(frames[i].class) == true then
 			frames[i].update();
