@@ -1,4 +1,4 @@
--- UMBERRUNES 1.11.1
+-- UMBERRUNES 1.11.2
 
 
 local function get_game_version()
@@ -207,7 +207,6 @@ local function update_diseases()
 	
 	base_frame = frames[get_frame("diseases")];
 	
-	
 	if is_wrath then
 		for i = 1, 2 do
 			disease_obj[i].texture:SetAlpha(0.1);
@@ -222,12 +221,12 @@ local function update_diseases()
 				if id == disease_ids[2] then
 					disease_obj[1].texture:SetAlpha(1);
 					disease_obj[1].text:SetText(math.floor(exp - GetTime()));
-					disease_obj[1].cd:SetCooldown(exp - dur, dur, true);
+					disease_obj[1].cd:SetCooldown(exp - dur, dur);
 				end
 				if id == disease_ids[1] then
 					disease_obj[2].texture:SetAlpha(1);
 					disease_obj[2].text:SetText(math.floor(exp - GetTime()));
-					disease_obj[2].cd:SetCooldown(exp - dur, dur, true);
+					disease_obj[2].cd:SetCooldown(exp - dur, dur);
 				end
 			else
 				break;
@@ -251,7 +250,7 @@ local function update_diseases()
 				if id == disease_ids[current_spec] then
 					disease_obj.texture:SetAlpha(1);
 					disease_obj.text:SetText(math.floor(exp - GetTime()));
-					disease_obj.cd:SetCooldown(exp - dur, dur, true);
+					disease_obj.cd:SetCooldown(exp - dur, dur);
 					break;
 				end
 			else
@@ -1009,7 +1008,7 @@ local function update_tracking()
 	else
 		tracking_texture:SetAlpha(1);
 		tracking_text:SetText(stackCount);
-		tracking_cd:SetCooldown(exp - dur, dur, true);
+		tracking_cd:SetCooldown(exp - dur, dur);
 	end
 		
 end
