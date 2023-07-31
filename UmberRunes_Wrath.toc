@@ -1,5 +1,4 @@
-## Interface: 30401
-## Interface-Mainline: 30401
+## Interface: 30402
 ## Title: UmberRunes
 ## Version: 1.11.4
 ## Notes: Simple yet sophisticated Death Knight Rune interface.

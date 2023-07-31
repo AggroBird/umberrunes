@@ -1,5 +1,4 @@
-## Interface: 100100
-## Interface-Mainline: 100100
+## Interface: 100105
 ## Title: UmberRunes
 ## Version: 1.11.4
 ## Notes: Simple yet sophisticated Death Knight Rune interface.
