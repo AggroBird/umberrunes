@@ -1190,24 +1190,45 @@ local command_color = "|cFF00FFFF";
 local text_color = "|cffffffff";
 SLASH_UMBER1 = '/umber';
 local function handler(msg, editbox)
-local command, rest = msg:match("^(%S*)%s*(.-)$")
+local command, args = msg:match("^(%S*)%s*(.-)$")
+	arg_iter = args:gmatch("%S+");
+	arg_arr = {};
+	i = 1;
+	for arg in arg_iter do
+		arg_arr[i] = arg;
+		i = i + 1;
+	end
+	print();
 	if command == "lock" then
 		if frame_locked == 1 then frame_locked = 0; print(header_start.."Frame unlocked.") else frame_locked = 1; print(header_start.."Frame locked.") end;
+	elseif command == "move" then
+		if table.getn(arg_arr) == 2 then
+			set_x = tonumber(arg_arr[1]);
+			set_y = tonumber(arg_arr[2]);
+			if set_x ~= nil and set_y ~= nil then
+				umb_x = set_x;
+				umb_y = set_y;
+			end
+		end
 	elseif command == "reset" then
 		umb_x = 0; umb_y = 0;
 		for i = 1, table.getn(frames) do umb_data["frame_"..frames[i].name.."_size"] = 1; end
 		for i = 1, table.getn(frames) do umb_data["frame_"..frames[i].name.."_enabled"] = true; end
 		print(header_start.."Frame reset.");
 	elseif command == "scale" then
-		scale = tonumber(rest);
-		if scale ~= nil then
-			if scale >= 0.5 and scale <= 3 then
-				for i = 1, table.getn(frames) do umb_data["frame_"..frames[i].name.."_size"] = scale; end
+		if table.getn(arg_arr) == 1 then
+			scale = tonumber(args);
+			if scale ~= nil then
+				if scale >= 0.5 and scale <= 3 then
+					for i = 1, table.getn(frames) do umb_data["frame_"..frames[i].name.."_size"] = scale; end
+				else
+					print(header_start.."Scale can only be between 0.5 and 3.");
+				end
 			else
-				print(header_start.."Use a number between 0.5 and 3 to set the scale.");
+				print(header_start.."Invalid number provided.");
 			end
 		else
-			print(header_start.."Use a number between 0.5 and 3 to set the scale.");
+			print(header_start.."No number was provided.");
 		end
 	elseif command == "combat" then
 		if umb_combat == true then
@@ -1282,8 +1303,9 @@ local command, rest = msg:match("^(%S*)%s*(.-)$")
 		print("|cFFFFA07AUmberRunes:");
 		print(" |cFFFFFF7APositioning");
 		print("  "..command_color.."/umber lock - "..text_color.."Lock/unlock the main frame.");
+		print("  "..command_color.."/umber move <x> <y> - "..text_color.."Set the position of the frame to specified X and Y.");
 		print("  "..command_color.."/umber reset - "..text_color.."Reset the position of the main frame.");
-		print("  "..command_color.."/umber scale - "..text_color.."Set the scale of all components. (Value between 0.5 and 3, 1 is default).");
+		print("  "..command_color.."/umber scale <scale> - "..text_color.."Set the scale of all components. (scale between 0.5 and 3, 1 is default).");
 		print(" |cFFFFFF7ARunes");
 		print("  "..command_color.."/umber combat - "..text_color.."Toggle hiding when out of combat.");
 		print("  "..command_color.."/umber sorting - "..text_color.."Toggle Rune sorting on/off.");
