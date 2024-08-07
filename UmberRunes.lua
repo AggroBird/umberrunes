@@ -7,8 +7,10 @@ local function get_game_version()
 end
 
 local game_version = get_game_version();
--- Is this the Wotlk version?
-local is_wrath = game_version >= 30000 and game_version < 40000;
+-- Is this classic game version? Diseases and buffs worked differently back then, no festering wound and bone shield.
+-- Legion also changed the way that runes worked (one single type instead of 3 different types).
+-- https://warcraft.wiki.gg/wiki/Rune_(game_resource)
+local is_classic = game_version < 70000;
 -- Absorb UI info availability (added in MoP)
 local has_absorbs = game_version >= 50200;
 -- GetSpecialization function availability (added in MoP)
@@ -188,7 +190,7 @@ local function setup_diseases()
 		
 		base_frame = frames[get_frame("diseases")];
 		
-		if is_wrath then
+		if is_classic then
 			disease_obj = {};
 			
 			disease_obj[1] = create_disease_frame(-base_frame.height / 2, -base_frame.height);
@@ -207,7 +209,7 @@ local function update_diseases()
 	
 	base_frame = frames[get_frame("diseases")];
 	
-	if is_wrath then
+	if is_classic then
 		for i = 1, 2 do
 			disease_obj[i].texture:SetAlpha(0.1);
 			disease_obj[i].text:SetText(" ");
@@ -553,7 +555,7 @@ local function setup_runes()
 		rune_rings = {};
 		rune_ring_textures = {};
 		
-		if is_wrath then
+		if is_classic then
 			for i = 1,6 do
 				rune_frames[i] = CreateFrame("Frame", "Rune"..i.."BG", base_frame.frame);
 				rune_frames[i]:SetPoint("CENTER", base_frame.frame, "CENTER", -(base_frame.width / 2) - (base_frame.height / 2) * 0.8 + (base_frame.width / 6) * i, 0);
@@ -654,7 +656,11 @@ local function update_runes()
 	
 	rune_index = 0;
 	for i = 1,6 do
-		if is_wrath then rune_index = rune_ids[i]; else rune_index = i; end
+		if is_classic then
+			rune_index = rune_ids[i];
+		else
+			rune_index = i;
+		end
 		
 		rune_start, rune_duration = GetRuneCooldown(rune_index);
 		if rune_start ~= nil and rune_duration ~= nil then
@@ -690,8 +696,8 @@ local function update_runes()
 		end
 	end
 	
-	if is_wrath then
-		-- Legacy runes
+	if is_classic then
+		-- Classic runes
 		for i = 1,6 do
 			local rune = runes_list[i];
 			
@@ -1021,7 +1027,7 @@ frames[table.getn(frames) + 1] = umber_frame:create("target", 120, 24, "", setup
 frames[table.getn(frames) + 1] = umber_frame:create("runes", 120, 24, "DEATHKNIGHT", setup_runes, update_runes);
 frames[table.getn(frames) + 1] = umber_frame:create("health", 120, 12, "", setup_health, update_health);
 frames[table.getn(frames) + 1] = umber_frame:create("runic", 120, 12, "", setup_runic, update_runic);
-if is_wrath == false then
+if is_classic == false then
 	frames[table.getn(frames) + 1] = umber_frame:create("tracking", 120, 16, "DEATHKNIGHT", setup_tracking, update_tracking);
 end
 
@@ -1286,7 +1292,7 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 			umb_data[set_string] = true;
 			print(header_start.."Showing diseases tracking.");
 		end
-	elseif command == "tracking" and is_wrath == false then
+	elseif command == "tracking" and is_classic == false then
 		set_string = "frame_tracking_enabled";
 		if umb_data[set_string] == true then
 			umb_data[set_string] = false;
@@ -1311,8 +1317,8 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 		print("  "..command_color.."/umber runic - "..text_color.."Toggle the Runic Power bar on/off.");
 		print("  "..command_color.."/umber target - "..text_color.."Toggle the target info on/off.");
 		print("  "..command_color.."/umber diseases - "..text_color.."Toggle the disease tracking on/off.");
-		if is_wrath == false then
-			print("  "..command_color.."/umber tracking - "..text_color.."Toggle buff/debuff tracking on/off.");
+		if is_classic == false then
+			print("  "..command_color.."/umber tracking - "..text_color.."Toggle bone shield/debuff tracking on/off.");
 		end
 	end
 end
