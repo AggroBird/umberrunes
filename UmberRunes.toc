@@ -1,6 +1,6 @@
 ## Interface: 110002
 ## Title: UmberRunes
-## Version: 1.12.0
+## Version: 1.12.1
 ## Notes: Simple yet sophisticated Death Knight Rune interface.
 ## IconTexture: Interface\Icons\Spell_deathknight_classicon
 ## Author: Umberwaugh, Kazzak-EU
