@@ -1,4 +1,4 @@
--- UMBERRUNES 1.11.4
+-- UMBERRUNES 1.12.0
 
 
 local function get_game_version()
@@ -1067,9 +1067,15 @@ umber_main_frame:SetScript("OnUpdate", function(self, elapsed)
 		
 		if isdragging == false and isscaling == false then
 			frame_selected = -1;
+			foci = GetMouseFoci();
 			for i = 1, table.getn(frames) do
 				if get_frame_enabled(frames[i].name) == true and get_frame_class_enabled(frames[i].class) == true then
-					if GetMouseFocus() == frames[i].frame then frame_selected = i; end
+					for k,v in pairs(foci) do
+						if v == frames[i].frame then
+							frame_selected = i;
+							break;
+						end
+					end
 				end
 			end
 			if IsMouseButtonDown(1) == true then
