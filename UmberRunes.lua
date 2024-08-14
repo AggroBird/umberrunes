@@ -1,4 +1,4 @@
--- UMBERRUNES 1.12.1
+-- UMBERRUNES 1.12.2
 
 
 local function get_game_version()
@@ -218,17 +218,16 @@ local function update_diseases()
 		
 		i = 1;
 		while true do
-			local name, _, _, _, dur, exp, _, _, _, id = UnitDebuff("target", i, "PLAYER");
-			if name then
-				if id == disease_ids[2] then
+			local debuff_data = C_UnitAuras.GetDebuffDataByIndex("target", i, "PLAYER");
+			if debuff_data then
+				if debuff_data.spellId == disease_ids[2] then
 					disease_obj[1].texture:SetAlpha(1);
-					disease_obj[1].text:SetText(math.floor(exp - GetTime()));
-					disease_obj[1].cd:SetCooldown(exp - dur, dur);
-				end
-				if id == disease_ids[1] then
+					disease_obj[1].text:SetText(math.floor(debuff_data.expirationTime - GetTime()));
+					disease_obj[1].cd:SetCooldown(debuff_data.expirationTime - debuff_data.duration, debuff_data.duration);
+				elseif debuff_data.spellId == disease_ids[1] then
 					disease_obj[2].texture:SetAlpha(1);
-					disease_obj[2].text:SetText(math.floor(exp - GetTime()));
-					disease_obj[2].cd:SetCooldown(exp - dur, dur);
+					disease_obj[2].text:SetText(math.floor(debuff_data.expirationTime - GetTime()));
+					disease_obj[2].cd:SetCooldown(debuff_data.expirationTime - debuff_data.duration, debuff_data.duration);
 				end
 			else
 				break;
@@ -247,13 +246,12 @@ local function update_diseases()
 		
 		i = 1;
 		while true do
-			local name, _, _, _, dur, exp, _, _, _, id = UnitDebuff("target", i, "PLAYER");
-			if name then
-				if id == disease_ids[current_spec] then
+			local debuff_data = C_UnitAuras.GetDebuffDataByIndex("target", i, "PLAYER");
+			if debuff_data then
+				if debuff_data.spellId == disease_ids[current_spec] then
 					disease_obj.texture:SetAlpha(1);
-					disease_obj.text:SetText(math.floor(exp - GetTime()));
-					disease_obj.cd:SetCooldown(exp - dur, dur);
-					break;
+					disease_obj.text:SetText(math.floor(debuff_data.expirationTime - GetTime()));
+					disease_obj.cd:SetCooldown(debuff_data.expirationTime - debuff_data.duration, debuff_data.duration);
 				end
 			else
 				break;
@@ -992,16 +990,17 @@ local function update_tracking()
 	
 	stackCount = 0;
 	i = 1;
+	local buff_data = nil;
 	while true do
 		if track_target == "target" then
-			name, icon, count, _, dur, exp, _, _, _, id = UnitDebuff(track_target, i, "PLAYER");
+			buff_data = C_UnitAuras.GetDebuffDataByIndex(track_target, i, "PLAYER");
 		else
-			name, icon, count, _, dur, exp, _, _, _, id = UnitBuff(track_target, i);
+			buff_data = C_UnitAuras.GetBuffDataByIndex(track_target, i);
 		end
-		if name == nil then break; end
+		if buff_data == nil then break; end
 		
-		if id == track_id then
-			stackCount = count;
+		if buff_data.spellId == track_id then
+			stackCount = buff_data.applications;
 			break;
 		end
 		i = i + 1;
@@ -1014,7 +1013,7 @@ local function update_tracking()
 	else
 		tracking_texture:SetAlpha(1);
 		tracking_text:SetText(stackCount);
-		tracking_cd:SetCooldown(exp - dur, dur);
+		tracking_cd:SetCooldown(buff_data.expirationTime - buff_data.duration, buff_data.duration);
 	end
 		
 end
