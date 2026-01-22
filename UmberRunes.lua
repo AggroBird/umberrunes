@@ -1,4 +1,4 @@
--- UMBERRUNES 1.13.0
+-- UMBERRUNES 1.12.2
 
 
 local function get_game_version()
