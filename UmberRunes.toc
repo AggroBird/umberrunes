@@ -1,7 +1,7 @@
 ## Interface: 110007, 110100, 110105, 110107, 110200, 110205, 110207
 ## Title: UmberRunes
 ## Version: 1.12.2
-## Notes: Simple yet sophisticated Death Knight Rune interface.
+## Notes: Simple Death Knight Rune interface.
 ## IconTexture: Interface\Icons\Spell_deathknight_classicon
 ## Author: Umberwaugh, Kazzak-EU
 ## SavedVariablesPerCharacter: umb_x, umb_y, umb_data, umb_combat, umb_timers, umb_sort
