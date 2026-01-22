@@ -405,9 +405,77 @@ local function update_runes()
 end
 
 
+
+-------------------------
+-- RUNIC INFO
+local runic_frame = nil;
+local runic_background = nil;
+local runic_bar = nil;
+local runic_text = nil;
+local runic_perc = nil;
+local function setup_runic()
+	if runic_frame == nil then
+	
+		base_frame = frames[get_frame("runic")];
+		
+		runic_frame = CreateFrame("Frame", nil, base_frame.frame);
+		runic_frame:SetPoint("TOP", base_frame.frame, "TOP", 0, 0);
+		runic_frame:SetWidth(base_frame.width); 
+		runic_frame:SetHeight(base_frame.height);
+		
+		power_type, power_token = UnitPowerType("player");
+		runic_background = runic_frame:CreateTexture("ARTWORK");
+		runic_background:SetAllPoints();
+		runic_background:SetColorTexture(PowerBarColor[power_type]["r"], PowerBarColor[power_type]["g"], PowerBarColor[power_type]["b"], 0.2);
+		
+		runic_bar = CreateFrame("StatusBar", nil, runic_frame);
+		runic_bar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar");
+		runic_bar:GetStatusBarTexture():SetHorizTile(false);
+		runic_bar:SetMinMaxValues(0, 100);
+		runic_bar:SetWidth(base_frame.width);
+		runic_bar:SetHeight(base_frame.height);
+		runic_bar:SetPoint("CENTER", runic_frame, "CENTER", 0, 0); 
+		runic_bar:SetStatusBarColor(PowerBarColor[power_type]["r"], PowerBarColor[power_type]["g"], PowerBarColor[power_type]["b"]);
+		
+		runic_text = runic_bar:CreateFontString("Runic Power Number", "ARTWORK", "TextStatusBarText");
+		runic_text:SetPoint("CENTER", runic_bar, "CENTER", 0, 0);
+		runic_text:SetText(0);
+		
+		runic_perc = runic_bar:CreateFontString("Energy Points Percentage", "ARTWORK", "GameFontNormalSmall");
+		runic_perc:SetPoint("CENTER", runic_bar, "CENTER", base_frame.width / 2 + 15, 0);
+		runic_perc:SetText("");
+	end
+end
+local function update_runic()
+	player_power = UnitPower("player");
+	player_max_power = UnitPowerMax("player");
+	
+	runic_bar:SetMinMaxValues(0, player_max_power);
+	runic_bar:SetValue(player_power);
+	runic_text:SetText(""..player_power.." / "..player_max_power.."");
+	
+	power_type, power_token = UnitPowerType("player");
+	power_color = PowerBarColor[power_type];
+	r = 0.4; g = 0.4; b = 0.4;
+	if power_color ~= nil then
+		r = power_color["r"];
+		g = power_color["g"];
+		b = power_color["b"];
+	end
+	runic_background:SetColorTexture(r, g, b, 0.2);
+	runic_bar:SetStatusBarColor(r, g, b);
+	
+	if power_type == 0 then
+		runic_perc:SetText(format_percentage_number(player_power, player_max_power).."%");
+	else
+		runic_perc:SetText("");
+	end
+	
+end
 -------------------------
 -- FRAMES
 frames[table.getn(frames) + 1] = umber_frame:create("runes", 120, 24, "DEATHKNIGHT", setup_runes, update_runes);
+frames[table.getn(frames) + 1] = umber_frame:create("runic", 120, 12, "", setup_runic, update_runic);
 
 -- On update
 local isdragging = false;
@@ -626,6 +694,15 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 			umb_timers = true;
 			print(header_start.."Showing Rune timers.");
 		end
+	elseif command == "runic" then
+		set_string = "frame_runic_enabled";
+		if umb_data[set_string] == true then
+			umb_data[set_string] = false;
+			print(header_start.."Hiding Runic Power bar.");
+		else
+			umb_data[set_string] = true;
+			print(header_start.."Showing Runic Power bar.");
+		end
 	else
 		print("|cFFFFA07AUmberRunes:");
 		print(" |cFFFFFF7APositioning");
@@ -637,6 +714,8 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 		print("  "..command_color.."/umber combat - "..text_color.."Toggle hiding when out of combat.");
 		print("  "..command_color.."/umber sorting - "..text_color.."Toggle Rune sorting on/off.");
 		print("  "..command_color.."/umber timers - "..text_color.."Toggle Rune timers on/off.");
+		print(" |cFFFFFF7AElements");
+		print("  "..command_color.."/umber runic - "..text_color.."Toggle the Runic Power bar on/off.");
 	end
 end
 SlashCmdList["UMBER"] = handler;
