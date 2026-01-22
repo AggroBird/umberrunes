@@ -707,7 +707,7 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 		print("|cFFFFA07AUmberRunes:");
 		print(" |cFFFFFF7APositioning");
 		print("  "..command_color.."/umber lock - "..text_color.."Lock/unlock the main frame.");
-		print("  "..command_color.."/umber move <x> <y> - "..text_color.."Set the position of the frame to specified X and Y.");
+		print("  "..command_color.."/umber move <x> <y> - "..text_color.."Set the position of the frame to specified coordinates.");
 		print("  "..command_color.."/umber reset - "..text_color.."Reset the position of the main frame.");
 		print("  "..command_color.."/umber scale <scale> - "..text_color.."Set the scale of all components. (scale between 0.5 and 3, 1 is default).");
 		print(" |cFFFFFF7ARunes");
