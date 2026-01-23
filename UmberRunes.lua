@@ -15,6 +15,10 @@ local is_classic = game_version < 70000;
 local has_absorbs = game_version >= 50200;
 -- GetSpecialization function availability (added in MoP)
 local has_spec = game_version >= 50000;
+-- Patch 12.0.0 onward disabled anything target tracking related
+-- Although some modules may still work, the overall usefulness has been reduced
+-- Instead of removing them, disable them in case we may need them in future
+local is_post_addon_apocalypse = game_version >= 120000;
 
 -- Main variables
 local current_spec = 2;
@@ -148,12 +152,18 @@ local function update_alpha()
 end
 
 local function format_big_number(value)
+	if is_post_addon_apocalypse then
+		return value;
+	end
 	if(value > 99999999) then return math.floor(value / 1000000).." M"; end
 	if(value > 99999) then return math.floor(value / 1000).." K"; end
 	return value;
 end
 local function format_percentage_number(value, maximum)
-	if value == 0 or maximun == 0 then return 0; end
+	if is_post_addon_apocalypse then
+		return value;
+	end
+	if value == 0 or maximum == 0 then return 0; end
 	return (floor((value / (maximum / 100)) * 10 ^ 0 + 0.5 ) / 10 ^ 0);
 end
 
@@ -1021,12 +1031,16 @@ end
 
 -------------------------
 -- FRAMES
-frames[table.getn(frames) + 1] = umber_frame:create("diseases", 64, 16, "DEATHKNIGHT", setup_diseases, update_diseases);
-frames[table.getn(frames) + 1] = umber_frame:create("target", 120, 24, "", setup_target, update_target);
+if is_post_addon_apocalypse == false then
+	frames[table.getn(frames) + 1] = umber_frame:create("diseases", 64, 16, "DEATHKNIGHT", setup_diseases, update_diseases);
+	frames[table.getn(frames) + 1] = umber_frame:create("target", 120, 24, "", setup_target, update_target);
+end
 frames[table.getn(frames) + 1] = umber_frame:create("runes", 120, 24, "DEATHKNIGHT", setup_runes, update_runes);
-frames[table.getn(frames) + 1] = umber_frame:create("health", 120, 12, "", setup_health, update_health);
+if is_post_addon_apocalypse == false then
+	frames[table.getn(frames) + 1] = umber_frame:create("health", 120, 12, "", setup_health, update_health);
+end
 frames[table.getn(frames) + 1] = umber_frame:create("runic", 120, 12, "", setup_runic, update_runic);
-if is_classic == false then
+if is_classic == false and is_post_addon_apocalypse == false then
 	frames[table.getn(frames) + 1] = umber_frame:create("tracking", 120, 16, "DEATHKNIGHT", setup_tracking, update_tracking);
 end
 
@@ -1247,15 +1261,6 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 			umb_timers = true;
 			print(header_start.."Showing Rune timers.");
 		end
-	elseif command == "health" then
-		set_string = "frame_health_enabled";
-		if umb_data[set_string] == true then
-			umb_data[set_string] = false;
-			print(header_start.."Hiding Health bar.");
-		else
-			umb_data[set_string] = true;
-			print(header_start.."Showing Health bar.");
-		end
 	elseif command == "runic" then
 		set_string = "frame_runic_enabled";
 		if umb_data[set_string] == true then
@@ -1265,7 +1270,16 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 			umb_data[set_string] = true;
 			print(header_start.."Showing Runic Power bar.");
 		end
-	elseif command == "target" then
+	elseif command == "health" and is_post_addon_apocalypse == false then
+		set_string = "frame_health_enabled";
+		if umb_data[set_string] == true then
+			umb_data[set_string] = false;
+			print(header_start.."Hiding Health bar.");
+		else
+			umb_data[set_string] = true;
+			print(header_start.."Showing Health bar.");
+		end
+	elseif command == "target" and is_post_addon_apocalypse == false then
 		set_string = "frame_target_enabled";
 		if umb_data[set_string] == true then
 			umb_data[set_string] = false;
@@ -1274,7 +1288,7 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 			umb_data[set_string] = true;
 			print(header_start.."Showing target info.");
 		end
-	elseif command == "diseases" then
+	elseif command == "diseases" and is_post_addon_apocalypse == false then
 		set_string = "frame_diseases_enabled";
 		if umb_data[set_string] == true then
 			umb_data[set_string] = false;
@@ -1283,7 +1297,7 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 			umb_data[set_string] = true;
 			print(header_start.."Showing diseases tracking.");
 		end
-	elseif command == "tracking" and is_classic == false then
+	elseif command == "tracking" and is_classic == false and is_post_addon_apocalypse == false then
 		set_string = "frame_tracking_enabled";
 		if umb_data[set_string] == true then
 			umb_data[set_string] = false;
@@ -1304,12 +1318,14 @@ local command, args = msg:match("^(%S*)%s*(.-)$")
 		print("  "..command_color.."/umber sorting - "..text_color.."Toggle Rune sorting on/off.");
 		print("  "..command_color.."/umber timers - "..text_color.."Toggle Rune timers on/off.");
 		print(" |cFFFFFF7AElements");
-		print("  "..command_color.."/umber health - "..text_color.."Toggle the Player Health bar on/off.");
 		print("  "..command_color.."/umber runic - "..text_color.."Toggle the Runic Power bar on/off.");
-		print("  "..command_color.."/umber target - "..text_color.."Toggle the target info on/off.");
-		print("  "..command_color.."/umber diseases - "..text_color.."Toggle the disease tracking on/off.");
-		if is_classic == false then
-			print("  "..command_color.."/umber tracking - "..text_color.."Toggle bone shield/debuff tracking on/off.");
+		if is_post_addon_apocalypse == false then
+			print("  "..command_color.."/umber health - "..text_color.."Toggle the Player Health bar on/off.");
+			print("  "..command_color.."/umber target - "..text_color.."Toggle the target info on/off.");
+			print("  "..command_color.."/umber diseases - "..text_color.."Toggle the disease tracking on/off.");
+			if is_classic == false then
+				print("  "..command_color.."/umber tracking - "..text_color.."Toggle bone shield/debuff tracking on/off.");
+			end
 		end
 	end
 end
